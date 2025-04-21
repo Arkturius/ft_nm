@@ -1,0 +1,5 @@
+.cache/
+nm_tester/
+*.o
+*.d
+ft_nm

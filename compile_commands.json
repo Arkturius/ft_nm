@@ -1,0 +1,19 @@
+[
+ {
+  "directory": "/nfs/homes/rgramati/Documents/42spe/ft_nm",
+  "arguments": [
+   "clang",
+   "-Wall",
+   "-Wextra",
+   "-MMD",
+   "-MP",
+   "-g",
+   "-o",
+   "build/src/main.o",
+   "-c",
+   "-Iinclude",
+   "src/main.c"
+  ],
+  "file": "src/main.c"
+ }
+]
