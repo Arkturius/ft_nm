@@ -7,10 +7,16 @@
 #ifndef _CELF_UTILS_H
 # define _CELF_UTILS_H
 
+# include <unistd.h>
 # include <stdint.h>
+# include <stdlib.h>
+# include <fcntl.h>
+# include <sys/stat.h>
+# include <sys/mman.h>
 
-# define	UNUSED	__attribute__((unused))
-# define	INLINE	static inline
+# define	UNUSED		__attribute__((unused))
+# define	INLINE		static inline
+# define	DESTRUCTOR	__attribute__((destructor))
 
 # if !defined(CONCAT) || !defined(CONCAT_INNER) || !defined(CONCAT3) || !defined(CONCAT4)
 #  undef	CONCAT_INNER
@@ -75,6 +81,99 @@ INLINE	uint64_t	byteswap64(uint64_t x)
         (size) == 8 ? byteswap64(field) : (field)								\
     ) : (field))
 #  define	READ_FIELD(field)	READ_FIELD_INNER(field, sizeof(field))
+# endif
+
+typedef struct
+{
+	uint8_t		*raw;
+	uint32_t	size;
+}	ELF;
+
+typedef struct
+{
+	ELF		file;
+	uint8_t	*f_header;
+	uint8_t	*p_headers;
+	uint8_t	*s_headers;
+	uint8_t	*symbols;
+	uint8_t	*reloc;			// not used now
+	uint8_t	*reloca;		// not used now
+	uint8_t	*dynamic;		// not used now
+	uint8_t	*section_names;
+	uint8_t	*asst;
+	void	*temp;
+}	CELF_ctx;
+
+# define	ELF_CONTEXT	__celf_ctx
+# define	ELF_RAW		ELF_CONTEXT.file.raw
+# define	ELF_SIZE	ELF_CONTEXT.file.size
+
+static CELF_ctx	ELF_CONTEXT = {0};
+
+INLINE int	ELF_open(const char *fp)
+{
+	int			fd;
+	struct stat	st;
+
+	fd = open(fp, O_RDONLY);
+	if (fd == -1)
+		return (1);
+	if (fstat(fd, &st) == -1)
+		return (1);
+
+	ELF_SIZE = st.st_size;
+	ELF_RAW = mmap(NULL, ELF_SIZE, PROT_READ, MAP_PRIVATE, fd, 0);
+	close(fd);
+	if (ELF_RAW == (void *)-1)
+		return (1);
+
+	return (0);
+}
+
+DESTRUCTOR INLINE int	ELF_close(void)
+{
+	if (ELF_SIZE == 0)
+		return (1);
+	if (ELF_RAW == (void *) -1)
+		return (1);
+
+	return munmap(ELF_RAW, ELF_SIZE);
+}
+
+INLINE int	strtab_cmp(char *s1, char *s2)
+{
+	while (*s1 && *s2 && *s1 == *s2)
+	{
+		s1++;
+		s2++;
+	}
+	return (*s1 - *s2);
+}
+
+INLINE char	*strtab_find(char *strtab, char *needle)
+{
+	char	*tmp;
+
+	for (tmp = strtab; *tmp; ++tmp)
+	{
+		if (*tmp == *needle )
+			continue;
+		if (strtab_cmp(tmp, needle) == 0)
+			break ;
+	}
+	return (tmp);
+}
+
+# define	ELF_READ_FIELD(field)	READ_FIELD(field)
+# define	ELF_OFFSET(o)			(ELF_CONTEXT.file.raw + (o))
+
+# define	ELF_IN_FILE(ptr)		((ptr - ELF_RAW) < ELF_SIZE)
+
+# if defined(CELF_ASSERT)
+#  include <assert.h>
+#  define	ELF_ASSERT_PTR(ptr)		assert(ELF_IN_FILE(ptr))
+# else
+#  define	ELF_ASSERT_PTR(ptr)		if (!ELF_IN_FILE(ptr)) { exit(1); }
 # endif
 
 #endif	// _CELF_UTILS_H

@@ -410,16 +410,11 @@ typedef struct
 # define CELF_IMPLEMENTATION
 # ifdef CELF_IMPLEMENTATION
 
-#  include <unistd.h>
-#  include <fcntl.h>
-#  include <stdlib.h>
-#  include <sys/stat.h>
-#  include <sys/mman.h>
-
 #  define _CELF_ENUMS_TO_STRING
 #  include <celfUtils.h>
 #  include <celfEnums.h>
 
+#define _CELF_LSP_FRIENDLY
 #  if !defined(_CELF_LSP_FRIENDLY)
 
 #   define	ELF_CLASS	32
@@ -429,44 +424,6 @@ typedef struct
 #   include <celfFuncs.h>
 
 #  endif // _CELF_LSP_FRIENDLY
-
-typedef struct	s_elf
-{
-	uint8_t		*raw;
-	uint64_t	size;
-}	ELF;
-
-static inline int	ELF_open(ELF *elf, const char *fp)
-{
-	int			fd;
-	struct stat	st;
-
-	if (!elf)
-		elf = (ELF *) malloc(sizeof(ELF));
-
-	if (!elf)
-		return (2);
-
-	if ((fd = open(fp, O_RDONLY)) == -1)
-		return (1);
-
-	if (fstat(fd, &st) == -1)
-		return (1);
-
-	elf->size = st.st_size;
-	elf->raw = (uint8_t *)mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-	close(fd);
-
-	if (elf->raw == (void *)-1)
-		return (2);
-	return (0);
-}
-
-static inline void	ELF_close(ELF *elf)
-{
-	if (elf->size != 0 && elf->raw != (void *) -1)
-		munmap(elf->raw, elf->size);
-}
 
 # endif	//	CELF_IMPLEMENTATION
 
