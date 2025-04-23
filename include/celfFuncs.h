@@ -4,15 +4,6 @@
  *		ELF Functions header.
  */
 
-#include "celfUtils.h"
-#include <string.h>
-#define _CELF_LSP_FRIENDLY
-
-#if defined(_CELF_LSP_FRIENDLY)
-# include <celf.h>
-# define ELF_CLASS	64
-#endif
-
 #if !defined(_CELF_H)
 # error		"Missing dependency: celf.h"
 #endif
@@ -20,7 +11,7 @@
 # error		"Missing dependency: celfUtils.h"
 #endif
 #if !defined(_CELF_ENUMS_H)
-# error		"Missing dependency: celfFuncs.h"
+# error		"Missing dependency: celfEnums.h"
 #endif
 #if !defined(ELF_CLASS)
 # error		"ELF_CLASS not defined."
@@ -75,37 +66,15 @@ INLINE ELF_SHDR	*CELF_CALL(getSectionHeaders)(void)
 		ELF_ASSERT_PTR(ELF_CONTEXT.s_headers);
 	}
 	
-	
 	return (ELF_SHDR *) ELF_CONTEXT.s_headers;
 }
 
-INLINE ELF_STRING	CELF_CALL(getSectionNames)(void)
+INLINE ELF_USHORT	CELF_CALL(getSectionCount)(void)
 {
-	if (!ELF_CONTEXT.section_names)
-	{
-		ELF_HDR		*f_header = CELF_CALL(getFileHeader)();
-		ELF_USHORT	shstrtab_off = ELF_READ_FIELD(f_header->footer.e_shstridx);
+	ELF_HDR		*f_header	= CELF_CALL(getFileHeader)();
+	ELF_USHORT	s_count		= ELF_READ_FIELD(f_header->footer.e_shnum);
 
-		ELF_CONTEXT.section_names = ELF_OFFSET(shstrtab_off);
-
-		ELF_ASSERT_PTR(ELF_CONTEXT.section_names);
-	}
-
-	return (ELF_STRING) ELF_CONTEXT.section_names;
-}
-
-INLINE ELF_UBYTE	*CELF_CALL(getSectionContent)(ELF_SHDR *section)
-{
-	ELF_UBYTE	*s_content = NULL;
-
-	ELF_ASSERT_PTR((ELF_UBYTE *)section);
-
-	ELF_ULONG	s_content_off	= ELF_READ_FIELD(section->sh_offset);
-	s_content					= ELF_OFFSET(s_content_off);
-
-	ELF_ASSERT_PTR(s_content);
-
-	return s_content;
+	return s_count;
 }
 
 /**
@@ -127,6 +96,38 @@ ELF_SHDR	*CELF_CALL(getSectionByIndex)(ELF_UINT index)
 	ELF_ASSERT_PTR(ELF_CONTEXT.asst);
 
 	return (ELF_SHDR *) ELF_CONTEXT.asst;
+}
+
+INLINE ELF_STRING	CELF_CALL(getSectionNames)(void)
+{
+	if (!ELF_CONTEXT.section_names)
+	{
+		ELF_HDR		*f_header = CELF_CALL(getFileHeader)();
+		ELF_USHORT	shstridx = ELF_READ_FIELD(f_header->footer.e_shstridx);
+
+		ELF_SHDR	*shstr = CELF_CALL(getSectionByIndex)(shstridx);
+		ELF_USHORT	strtab_off = ELF_READ_FIELD(shstr->sh_offset);
+
+		ELF_CONTEXT.section_names = ELF_OFFSET(strtab_off);
+
+		ELF_ASSERT_PTR(ELF_CONTEXT.section_names);
+	}
+
+	return (ELF_STRING) ELF_CONTEXT.section_names;
+}
+
+INLINE ELF_UBYTE	*CELF_CALL(getSectionContent)(ELF_SHDR *section)
+{
+	ELF_UBYTE	*s_content = NULL;
+
+	ELF_ASSERT_PTR((ELF_UBYTE *)section);
+
+	ELF_ULONG	s_content_off	= ELF_READ_FIELD(section->sh_offset);
+	s_content					= ELF_OFFSET(s_content_off);
+
+	ELF_ASSERT_PTR(s_content);
+
+	return s_content;
 }
 
 ELF_SHDR	*CELF_CALL(getSectionByName)(ELF_STRING name)
@@ -165,7 +166,7 @@ ELF_SHDR	*CELF_CALL(getSectionByName)(ELF_STRING name)
  *
  *		- returns a pointer to the 1st Section Header with this type.
  */
-ELF_SHDR	*CELF_CALL(getSectionByType)(enum ELF_SectionType type)
+ELF_SHDR	*CELF_CALL(getSectionByType)(ELF_SectionType type)
 {
 	ELF_HDR		*f_header	= CELF_CALL(getFileHeader)();
 	ELF_USHORT	s_count		= ELF_READ_FIELD(f_header->footer.e_shnum);
@@ -215,6 +216,16 @@ ELF_SYM	*CELF_CALL(getSymbols)(void)
 	}
 
 	return (ELF_SYM *) ELF_CONTEXT.symbols;
+}
+
+INLINE ELF_UINT	CELF_CALL(getSymbolCount)(void)
+{
+	ELF_SHDR	*sym_header	= CELF_CALL(getSectionByType)(SHT_SYMTAB);
+
+	ELF_ULONG	size		= ELF_READ_FIELD(sym_header->sh_size);
+	ELF_ULONG	sym_size	= ELF_READ_FIELD(sym_header->sh_entsize);
+
+	return (ELF_UINT) (size / sym_size);
 }
 
 #undef ELF_CLASS

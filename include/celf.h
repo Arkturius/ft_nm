@@ -1,7 +1,18 @@
 /**
  *	celf.h
  *
- *		ELF helper header.
+ *	ELF helper header-only library.
+ *	provides both structs && an optional implementation.
+ *
+ *   structs:
+ *
+ *		x64/x32 File Header
+ *		--		Section Header
+ *		--		Program Header
+ *		--		Symbol
+ *		--		Dynamic Symbol
+ *		--		Relocation
+ *		--		Relocation (with addend)
  */
 
 #ifndef _CELF_H
@@ -24,8 +35,10 @@
  *		e_ABIversion	ABI version spec
  *		e_padding		empty space			(should be 0 filled)
  */
-typedef struct
+typedef union
 {
+	struct
+	{
 	uint8_t	e_magic[4];
 	uint8_t	e_class;
 	uint8_t	e_endianness;
@@ -33,6 +46,8 @@ typedef struct
 	uint8_t	e_ABI;
 	uint8_t	e_ABIversion;
 	uint8_t	e_padding[7];
+	};
+	uint8_t	e_ident[16];
 }	ELF_Ident;
 
 /**
@@ -407,23 +422,15 @@ typedef struct
  *		Functions for parsing, verifying and creating ELF structures.
  */
 
-# define CELF_IMPLEMENTATION
-# ifdef CELF_IMPLEMENTATION
+# if defined(_CELF_IMPLEMENTATION)
 
 #  define _CELF_ENUMS_TO_STRING
-#  include <celfUtils.h>
-#  include <celfEnums.h>
-
-#define _CELF_LSP_FRIENDLY
-#  if !defined(_CELF_LSP_FRIENDLY)
-
-#   define	ELF_CLASS	32
-#   include <celfFuncs.h>
-
-#   define	ELF_CLASS	64
-#   include <celfFuncs.h>
-
-#  endif // _CELF_LSP_FRIENDLY
+#  include "celfUtils.h"
+#  include "celfEnums.h"
+#  define	ELF_CLASS	32
+#  include "celfFuncs.h"
+#  define	ELF_CLASS	64
+#  include "celfFuncs.h"
 
 # endif	//	CELF_IMPLEMENTATION
 

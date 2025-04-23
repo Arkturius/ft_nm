@@ -1,5 +1,5 @@
 /**
- * celfEnums
+ * celfEnums | part of celf.h
  *
  *		ELF Enumerates header.
  */
@@ -7,7 +7,7 @@
 #ifndef _CELF_ENUMS_H
 # define _CELF_ENUMS_H
 
-# ifndef _CELF_ENUMS_TO_STRINGS
+# ifndef _CELF_ENUMS_TO_STRING
 
 enum	ELF_IdentIndices
 {

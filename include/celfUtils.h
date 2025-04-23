@@ -1,5 +1,5 @@
 /**
- *	celfUtils.h
+ *	celfUtils.h | part of celf.h
  *
  *		CELF utils macros.
  */
@@ -156,7 +156,7 @@ INLINE char	*strtab_find(char *strtab, char *needle)
 
 	for (tmp = strtab; *tmp; ++tmp)
 	{
-		if (*tmp == *needle )
+		if (*tmp != *needle )
 			continue;
 		if (strtab_cmp(tmp, needle) == 0)
 			break ;
