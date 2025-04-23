@@ -6,7 +6,7 @@
 /*   By: rgramati <rgramati@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/19 15:33:12 by rgramati          #+#    #+#             */
-/*   Updated: 2025/04/21 15:53:37 by rgramati         ###   ########.fr       */
+/*   Updated: 2025/04/23 04:53:10 by rgramati         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,46 +17,8 @@
 # include <stdint.h>
 # include <unistd.h>
 
-# define	UNUSED			__attribute__((unused))
-# define	INLINE			static inline
-
-# define	NM_CONCAT_INNER(a, b)	a##b
-# define	NM_CONCAT(a, b)			NM_CONCAT_INNER(a, b)
-# define	NM_CONCAT_3(a, b, c)	NM_CONCAT(NM_CONCAT(a, b), c)
-# define	NM_CONCAT_4(a, b, c, d)	NM_CONCAT(NM_CONCAT(a, b), NM_CONCAT(c, d))
-
-# define	NM_CLASS	NM_CONTEXT.id.e_class
-# define	NM_IS_32	NM_CLASS == ELF_32BIT
-# define	NM_IS_64	NM_CLASS == ELF_64BIT
-
-# define	NM_ENDIAN	NM_CONTEXT.id.e_endianness
-# define	NM_IS_LE	NM_ENDIAN == ELF_DATA2LSB
-# define	NM_IS_BE	NM_ENDIAN == ELF_DATA2MSB
-
-# define	CELF_ENUMS_TO_STRINGS
-# include <celfEnums.h>
-# define	CELF_IMPLEMENTATION
-# define	CELF_IS_LE	NM_IS_LE
+# define	_CELF_IMPLEMENTATION
 # include <celf.h>
-
-typedef struct	s_nm_context
-{
-	ELF			file;
-	ELF_Ident	id;
-	uint32_t	sections_count;
-	uint8_t		*sections_hdr;
-	union
-	{
-		ELF64_Sym	*symtab64;
-		ELF32_Sym	*symtab32;
-	};
-	uint32_t	symbol_count;
-	union
-	{
-		char	*symtab_str;
-		char	**symbol_names;
-	};
-}	nm_file_context;
 
 typedef struct	s_nm_core
 {
@@ -64,9 +26,9 @@ typedef struct	s_nm_core
 	char			**files;
 	uint32_t		nfiles;
 	uint32_t		opts;
-	nm_file_context	context;
 }	nm_core;
 
+/*
 # define	NM_CORE			_nm_core
 # define	NM_CONTEXT		NM_CORE.context
 # define	NM_OPTIONS		_nm_options
@@ -75,6 +37,7 @@ typedef struct	s_nm_core
 # define	NM_FILE_OFF(o)	(NM_CONTEXT.file.raw + o)
 
 static nm_core	NM_CORE = {0};
+*/
 
 INLINE uint32_t	nm_strlen(const char *str)
 {
@@ -139,7 +102,7 @@ INLINE void	nm_memswap(void *a, void *b, uint32_t n)
 	nm_memcpy(b, swap_buf, n);
 }
 
-INLINE const char	*nm_hexitoa(uint64_t n, int len)
+INLINE const char	*nm_xtoa(uint64_t n, int len)
 {
 	static char	hex[16] = "0123456789abcdef";
 	static char	buffer[17] = {0};
