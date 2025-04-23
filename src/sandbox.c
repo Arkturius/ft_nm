@@ -10,23 +10,23 @@ int main(UNUSED int argc, char **argv)
 
 	LOG("size = %u", ELF_SIZE);
 
-	celf64_getSectionHeaders();
+	ELF_64_CALL(getSectionHeaders)();
 	
-	ELF64_Shdr	*symtab_hdr = celf64_getSectionByType(SHT_SYMTAB);
-	uint32_t	link = READ_FIELD(symtab_hdr->sh_link);
+	ELF64_Shdr	*symtab = ELF_64_CALL(getSectionByName)(".symtab");
+	uint32_t	link = READ_FIELD(symtab->sh_link);
 
-	ELF64_Shdr	*symbol_names = celf64_getSectionByIndex(link);
-	uint8_t		*names = celf64_getSectionContent(symbol_names);
+	ELF64_Shdr	*sym_names = ELF_64_CALL(getSectionByIndex)(link);
+	char		*names = (char *) ELF_64_CALL(getSectionContent)(sym_names);
 
-	ELF64_Sym	*symbols = celf64_getSymbols();
-	uint32_t	scount = celf64_getSymbolCount();
+	ELF64_Sym	*symbols = ELF_64_CALL(getSymbols)();
+	uint32_t	scount = ELF_64_CALL(getSymbolCount)();
 
 	for (uint32_t i = 0; i < scount; ++i)
 	{
-		uint8_t	info = READ_FIELD(symbols[i].st_info);
+		uint8_t		info = READ_FIELD(symbols[i].st_info);
 		uint32_t	idx = READ_FIELD(symbols[i].st_name);
 
-		printf("[%3u] %16s / %s\n", i, ELF_SymbolTypeToString(ELF64_ST_TYPE(info)), (char *)names + idx);
+		printf("[%3u] %16s / %s\n", i, ELF_SymbolTypeToString(ELF64_ST_TYPE(info)), names + idx);
 	}
 
 //	ELF_close();

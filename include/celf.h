@@ -39,41 +39,29 @@ typedef union
 {
 	struct
 	{
-	uint8_t	e_magic[4];
-	uint8_t	e_class;
-	uint8_t	e_endianness;
-	uint8_t	e_version;
-	uint8_t	e_ABI;
-	uint8_t	e_ABIversion;
-	uint8_t	e_padding[7];
+		uint8_t	e_magic[4];
+		uint8_t	e_class;
+		uint8_t	e_endianness;
+		uint8_t	e_version;
+		uint8_t	e_ABI;
+		uint8_t	e_ABIversion;
+		uint8_t	e_padding[7];
 	};
 	uint8_t	e_ident[16];
 }	ELF_Ident;
 
 /**
- * @struct	ELF_Hdr
+ * @struct	ELF64_Hdr
  *
- * @brief		ELF Start of header.
+ * @brief		64-bit ELF Header.
  *
  *		e_ident			Identification bytes
  *		e_type			File type
  *		e_machine		Instruction set architecture
  *		e_version		ELF version	(should always be 1)
- */
-
-typedef struct
-{
-	ELF_Ident		e_ident;
-	uint16_t		e_type;
-	uint16_t		e_machine;
-	uint32_t		e_version;
-}	PACKED ELF_Hdr;
-
-/**
- * @struct	ELF_Ftr
- *
- * @brief		ELF End of header.
- *
+ *		e_entry			Program entrypoint address
+ *		e_phoff			Program header table offset
+ *		e_shoff			Section header table offset
  *		e_flags			Architecture-specific
  *		e_hsize			ELF header size
  *		e_phsize		Program header table entry size
@@ -84,6 +72,13 @@ typedef struct
  */
 typedef struct
 {
+	ELF_Ident	e_ident;
+	uint16_t	e_type;
+	uint16_t	e_machine;
+	uint32_t	e_version;
+	uint64_t	e_entry;
+	uint64_t	e_phoff;
+	uint64_t	e_shoff;
 	uint32_t	e_flags;
 	uint16_t	e_hsize;
 	uint16_t	e_phsize;
@@ -91,26 +86,6 @@ typedef struct
 	uint16_t	e_shsize;
 	uint16_t	e_shnum;
 	uint16_t	e_shstridx;
-}	PACKED ELF_Ftr;
-
-/**
- * @struct	ELF64_Hdr
- *
- * @brief		64-bit ELF Header.
- *
- *		header			ELF start of header 
- *		e_entry			Program entrypoint address
- *		e_phoff			Program header table offset
- *		e_shoff			Section header table offset
- *		footer			ELF end of header 
- */
-typedef struct
-{
-	ELF_Hdr		header;
-	uint64_t	e_entry;
-	uint64_t	e_phoff;
-	uint64_t	e_shoff;
-	ELF_Ftr		footer;
 }	PACKED ELF64_Hdr;
 
 /**
@@ -126,11 +101,20 @@ typedef struct
  */
 typedef struct
 {
-	ELF_Hdr		header;
+	ELF_Ident	e_ident;
+	uint16_t	e_type;
+	uint16_t	e_machine;
+	uint32_t	e_version;
 	uint32_t	e_entry;
 	uint32_t	e_phoff;
 	uint32_t	e_shoff;
-	ELF_Ftr		footer;
+	uint32_t	e_flags;
+	uint16_t	e_hsize;
+	uint16_t	e_phsize;
+	uint16_t	e_phnum;
+	uint16_t	e_shsize;
+	uint16_t	e_shnum;
+	uint16_t	e_shstridx;
 }	PACKED ELF32_Hdr;
 
 typedef		uint8_t	*ELF_File;
@@ -427,10 +411,34 @@ typedef struct
 #  define _CELF_ENUMS_TO_STRING
 #  include "celfUtils.h"
 #  include "celfEnums.h"
-#  define	ELF_CLASS	32
-#  include "celfFuncs.h"
-#  define	ELF_CLASS	64
-#  include "celfFuncs.h"
+
+#  if !defined(_CELF_LSP)
+#   define	ELF_CLASS	32
+#   include "celfFuncs.h"
+#   define	ELF_CLASS	64
+#   include "celfFuncs.h"
+#  endif
+
+// TODO:	Write this !!!
+
+typedef	void	*ELF_Hdr
+typedef void	*ELF_Shdr
+typedef void	*ELF_Phdr
+typedef void	*ELF_Sym
+typedef void	*ELF_Rel
+typedef void	*ELF_Rela
+typedef void	*ELF_Dyn
+
+#  define	ELF_IS_64	(ELF_RAW[EI_CLASS] == ELF_64BIT)
+#  define	ELF_IS_32	(ELF_RAW[EI_CLASS] == ELF_32BIT)
+
+ELF_Hdr	_getFileHeader(void)
+{
+	if (ELF_IS_64)	return (ELF_Hdr) celf_x64_getFileHeader();
+	if (ELF_IS_32)	return (ELF_Hdr) celf_x32_getFileHeader();
+
+	return (NULL);
+}
 
 # endif	//	CELF_IMPLEMENTATION
 

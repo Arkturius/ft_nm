@@ -63,26 +63,6 @@ INLINE	uint64_t	byteswap64(uint64_t x)
            ((x & 0x00000000000000FFULL) << 56);
 }
 
-# if defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-#  define HOST_IS_LE 1
-# else
-#  define HOST_IS_BE 1
-# endif
-
-# if !defined(CELF_IS_LE)
-#  define CELF_IS_LE	1
-# endif
-
-# if defined(CELF_IS_LE) && defined(HOST_IS_LE)
-#  define		READ_FIELD_INNER(field, size)									\
-    ((HOST_IS_LE != (CELF_IS_LE)) ? (											\
-        (size) == 2 ? byteswap16(field) :										\
-        (size) == 4 ? byteswap32(field) :										\
-        (size) == 8 ? byteswap64(field) : (field)								\
-    ) : (field))
-#  define	READ_FIELD(field)	READ_FIELD_INNER(field, sizeof(field))
-# endif
-
 typedef struct
 {
 	uint8_t		*raw;
@@ -109,6 +89,25 @@ typedef struct
 # define	ELF_SIZE	ELF_CONTEXT.file.size
 
 static CELF_ctx	ELF_CONTEXT = {0};
+# if defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#  define HOST_IS_LE 1
+# else
+#  define HOST_IS_BE 1
+# endif
+
+# if !defined(CELF_IS_LE)
+#  define CELF_IS_LE	ELF_RAW[EI_DATA] == ELF_DATA2LSB
+# endif
+
+# if defined(CELF_IS_LE) && defined(HOST_IS_LE)
+#  define		READ_FIELD_INNER(field, size)									\
+    ((HOST_IS_LE != (CELF_IS_LE)) ? (											\
+        (size) == 2 ? byteswap16(field) :										\
+        (size) == 4 ? byteswap32(field) :										\
+        (size) == 8 ? byteswap64(field) : (field)								\
+    ) : (field))
+#  define	READ_FIELD(field)	READ_FIELD_INNER(field, sizeof(field))
+# endif
 
 INLINE int	ELF_open(const char *fp)
 {
@@ -132,6 +131,8 @@ INLINE int	ELF_open(const char *fp)
 
 DESTRUCTOR INLINE int	ELF_close(void)
 {
+	ELF_CONTEXT = (CELF_ctx){0};
+
 	if (ELF_SIZE == 0)
 		return (1);
 	if (ELF_RAW == (void *) -1)
@@ -140,7 +141,7 @@ DESTRUCTOR INLINE int	ELF_close(void)
 	return munmap(ELF_RAW, ELF_SIZE);
 }
 
-INLINE int	strtab_cmp(char *s1, char *s2)
+INLINE int	strtab_cmp(const char *s1, const char *s2)
 {
 	while (*s1 && *s2 && *s1 == *s2)
 	{
@@ -150,9 +151,9 @@ INLINE int	strtab_cmp(char *s1, char *s2)
 	return (*s1 - *s2);
 }
 
-INLINE char	*strtab_find(char *strtab, char *needle)
+INLINE const char	*strtab_find(const char *strtab, char *needle)
 {
-	char	*tmp;
+	const char	*tmp;
 
 	for (tmp = strtab; *tmp; ++tmp)
 	{
@@ -175,5 +176,9 @@ INLINE char	*strtab_find(char *strtab, char *needle)
 # else
 #  define	ELF_ASSERT_PTR(ptr)		if (!ELF_IN_FILE(ptr)) { exit(1); }
 # endif
+
+# define	ELF_CALL_PREFIX(c)	CONCAT3(celf_x, c, _)
+# define	ELF_64_CALL(name)	CONCAT(ELF_CALL_PREFIX(64), name)
+# define	ELF_32_CALL(name)	CONCAT(ELF_CALL_PREFIX(32), name)
 
 #endif	// _CELF_UTILS_H
