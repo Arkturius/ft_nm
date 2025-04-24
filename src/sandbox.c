@@ -2,7 +2,7 @@
 #include <stdio.h>
 #define _CELF_LOGGING 
 #define _CELF_IMPLEMENTATION
-#include <celf.h>
+#include <celf/celf.h>
 
 int main(UNUSED int argc, char **argv)
 {
@@ -10,16 +10,15 @@ int main(UNUSED int argc, char **argv)
 
 	LOG("size = %u", ELF_SIZE);
 
-	ELF_64_CALL(getSectionHeaders)();
+	getSections();
 	
-	ELF64_Shdr	*symtab = ELF_64_CALL(getSectionByName)(".symtab");
+	ELF64_Shdr	*symtab = getSectionByName(".symtab");
 	uint32_t	link = READ_FIELD(symtab->sh_link);
 
-	ELF64_Shdr	*sym_names = ELF_64_CALL(getSectionByIndex)(link);
-	char		*names = (char *) ELF_64_CALL(getSectionContent)(sym_names);
+	char		*names = getSectionNames();
 
-	ELF64_Sym	*symbols = ELF_64_CALL(getSymbols)();
-	uint32_t	scount = ELF_64_CALL(getSymbolCount)();
+	ELF64_Sym	*symbols = getSymbols();
+	uint32_t	scount = getSymbolCount();
 
 	for (uint32_t i = 0; i < scount; ++i)
 	{

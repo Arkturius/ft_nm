@@ -42,7 +42,6 @@
 #define		ELF_ULONG	CONCAT3(uint, ELF_CLASS, _t)
 #define		ELF_STRING	char*
 
-# define	CELF_CALL(name)		CONCAT(ELF_CALL_PREFIX(ELF_CLASS), name)
 
 /* Context pointers functions ----------------------------------------------- */
 
@@ -52,7 +51,7 @@
  *
  * @return	current ELF File Header pointer.
  */
-INLINE ELF_HDR	*CELF_CALL(getFileHeader)(void)
+INLINE ELF_HDR	*ELF_CALL(getFileHeader)(void)
 {
 	if (!ELF_CONTEXT.f_header)
 		ELF_CONTEXT.f_header = ELF_RAW;
@@ -66,11 +65,11 @@ INLINE ELF_HDR	*CELF_CALL(getFileHeader)(void)
  *
  * @return	current ELF File Sections Header Table pointer.
  */
-ELF_SHDR	*CELF_CALL(getSectionHeaders)(void)
+ELF_SHDR	*ELF_CALL(getSections)(void)
 {
 	if (!ELF_CONTEXT.s_headers)
 	{
-		const ELF_HDR	*f_header = CELF_CALL(getFileHeader)();
+		const ELF_HDR	*f_header = ELF_CALL(getFileHeader)();
 		const ELF_ULONG	s_headers_off = ELF_READ_FIELD(f_header->e_shoff);
 
 		ELF_CONTEXT.s_headers = ELF_OFFSET(s_headers_off);
@@ -87,9 +86,9 @@ ELF_SHDR	*CELF_CALL(getSectionHeaders)(void)
  *
  * @return	current ELF File Section Header size.
  */
-INLINE ELF_USHORT	CELF_CALL(getSectionCount)(void)
+INLINE ELF_USHORT	ELF_CALL(getSectionCount)(void)
 {
-	const ELF_HDR		*f_header = CELF_CALL(getFileHeader)();
+	const ELF_HDR		*f_header = ELF_CALL(getFileHeader)();
 	const ELF_USHORT	s_count = ELF_READ_FIELD(f_header->e_shnum);
 
 	return s_count;
@@ -101,7 +100,7 @@ INLINE ELF_USHORT	CELF_CALL(getSectionCount)(void)
  *
  * @return	Raw bytes pointer : ELF_RAW + section->sh_offset.
  */
-INLINE ELF_UBYTE	*CELF_CALL(getSectionContent)(ELF_SHDR *section)
+INLINE ELF_UBYTE	*ELF_CALL(getSectionContent)(const ELF_SHDR *section)
 {
 	ELF_ASSERT_PTR((ELF_UBYTE *)section);
 
@@ -120,7 +119,7 @@ INLINE ELF_UBYTE	*CELF_CALL(getSectionContent)(ELF_SHDR *section)
  *
  * @return	ELF_ULONG containing the section size.
  */
-INLINE ELF_ULONG	CELF_CALL(getSectionSize)(ELF_SHDR *section)
+INLINE ELF_ULONG	ELF_CALL(getSectionSize)(const ELF_SHDR *section)
 {
 	ELF_ASSERT_PTR((ELF_UBYTE *)section);
 
@@ -135,14 +134,14 @@ INLINE ELF_ULONG	CELF_CALL(getSectionSize)(ELF_SHDR *section)
  *
  * @return	Section Header pointer : ELF_CONTEXT.s_headers[index].
  */
-ELF_SHDR	*CELF_CALL(getSectionByIndex)(ELF_UINT index)
+ELF_SHDR	*ELF_CALL(getSectionByIndex)(const ELF_UINT index)
 {
-	const ELF_USHORT	s_count	= CELF_CALL(getSectionCount)();
+	const ELF_USHORT	s_count	= ELF_CALL(getSectionCount)();
 
 	if (index >= s_count)
 		return (NULL);
 
-	const ELF_SHDR	*s_headers = CELF_CALL(getSectionHeaders)();
+	const ELF_SHDR	*s_headers = ELF_CALL(getSections)();
 
 	ELF_ASSERT_PTR((ELF_UBYTE *)(s_headers + index));
 
@@ -155,15 +154,19 @@ ELF_SHDR	*CELF_CALL(getSectionByIndex)(ELF_UINT index)
  *
  * @return	char pointer to the .shstrtab section.
  */
-INLINE ELF_STRING	CELF_CALL(getSectionNames)(void)
+INLINE ELF_STRING	ELF_CALL(getSectionNames)(void)
 {
 	if (!ELF_CONTEXT.section_names)
 	{
-		const ELF_HDR		*f_header = CELF_CALL(getFileHeader)();
+		const ELF_HDR		*f_header = ELF_CALL(getFileHeader)();
 		const ELF_USHORT	shstridx = ELF_READ_FIELD(f_header->e_shstridx);
 
-		ELF_SHDR	*shstr = CELF_CALL(getSectionByIndex)(shstridx);
-		ELF_CONTEXT.section_names = CELF_CALL(getSectionContent)(shstr);
+		ELF_SHDR	*shstrtab = ELF_CALL(getSectionByIndex)(shstridx);
+		
+		if (!ELF_CONTEXT.shstrtab)
+			ELF_CONTEXT.shstrtab = (ELF_UBYTE *) shstrtab;
+
+		ELF_CONTEXT.section_names = ELF_CALL(getSectionContent)(shstrtab);
 	}
 
 	return (ELF_STRING) ELF_CONTEXT.section_names;
@@ -175,9 +178,9 @@ INLINE ELF_STRING	CELF_CALL(getSectionNames)(void)
  *
  * @return	char pointer to the .shstrtab section.
  */
-INLINE ELF_STRING	CELF_CALL(getSectionName)(ELF_SHDR *section)
+INLINE ELF_STRING	ELF_CALL(getSectionName)(const ELF_SHDR *section)
 {
-	ELF_STRING	names = CELF_CALL(getSectionNames)();
+	ELF_STRING	names = ELF_CALL(getSectionNames)();
 	ELF_UINT	name_off = ELF_READ_FIELD(section->sh_name);
 
 	return names + name_off;
@@ -189,22 +192,25 @@ INLINE ELF_STRING	CELF_CALL(getSectionName)(ELF_SHDR *section)
  *
  * @return	ELF Section Header pointer to the section named "name".
  */
-ELF_SHDR	*CELF_CALL(getSectionByName)(ELF_STRING name)
+ELF_SHDR	*ELF_CALL(getSectionByName)(const ELF_STRING name)
 {
-	const ELF_USHORT	s_count	= CELF_CALL(getSectionCount)();
-	const ELF_STRING	s_names = CELF_CALL(getSectionNames)();
-	const ELF_UINT		name_ref = strtab_find(s_names, name) - s_names;	
+	const ELF_USHORT	s_count	= ELF_CALL(getSectionCount)();
+	const ELF_STRING	s_names = ELF_CALL(getSectionNames)();
+	
+	ELF_SHDR			*strtab = (ELF_SHDR *) ELF_CONTEXT.shstrtab;
+	const ELF_ULONG		s_size	= ELF_CALL(getSectionSize)(strtab);
+	const ELF_STRING	name_ref = strtab_find(s_names, name, s_size);	
 
 	if (name_ref == 0)
 		return (NULL);
 
-	ELF_SHDR	*s_iterator = CELF_CALL(getSectionHeaders)();
+	ELF_SHDR	*s_iterator = ELF_CALL(getSections)();
 
-	for (ELF_USHORT i = 0; i < s_count; ++i)
+	for (ELF_USHORT i = 0; i < s_count; ++i, ++s_iterator)
 	{
 		ELF_UINT	name_idx = ELF_READ_FIELD(s_iterator->sh_name);
 
-		if (name_idx == name_ref)
+		if (name_idx == name_ref - s_names)
 			return s_iterator;
 	}
 	return NULL;
@@ -216,11 +222,11 @@ ELF_SHDR	*CELF_CALL(getSectionByName)(ELF_STRING name)
  *
  * @return	ELF Section Header pointer to the FIRST section typed "type"
  */
-ELF_SHDR	*CELF_CALL(getSectionByType)(ELF_SectionType type)
+ELF_SHDR	*ELF_CALL(getSectionByType)(ELF_SectionType type)
 {
-	const ELF_USHORT	s_count	= CELF_CALL(getSectionCount)();
+	const ELF_USHORT	s_count	= ELF_CALL(getSectionCount)();
 
-	ELF_SHDR	*s_iterator = CELF_CALL(getSectionHeaders)();
+	ELF_SHDR	*s_iterator = ELF_CALL(getSections)();
 
 	for (ELF_USHORT i = 0; i < s_count; ++i, ++s_iterator)
 	{
@@ -232,11 +238,11 @@ ELF_SHDR	*CELF_CALL(getSectionByType)(ELF_SectionType type)
 	return NULL;
 }
 
-INLINE ELF_PHDR	*CELF_CALL(getProgramHeaders)(void)
+INLINE ELF_PHDR	*ELF_CALL(getProgramHeaders)(void)
 {
 	if (!ELF_CONTEXT.p_headers)
 	{
-		ELF_HDR		*f_header		= CELF_CALL(getFileHeader)();
+		ELF_HDR		*f_header		= ELF_CALL(getFileHeader)();
 		ELF_ULONG	p_headers_off	= ELF_READ_FIELD(f_header->e_phoff);
 
 		ELF_CONTEXT.p_headers = ELF_OFFSET(p_headers_off);
@@ -247,21 +253,21 @@ INLINE ELF_PHDR	*CELF_CALL(getProgramHeaders)(void)
 	return (ELF_PHDR *) ELF_CONTEXT.p_headers;
 }
 
-ELF_SYM	*CELF_CALL(getSymbols)(void)
+ELF_SYM	*ELF_CALL(getSymbols)(void)
 {
 	if (!ELF_CONTEXT.symbols)
 	{
-		ELF_SHDR	*sym_header	= CELF_CALL(getSectionByType)(SHT_SYMTAB);
+		ELF_SHDR	*sym_header	= ELF_CALL(getSectionByType)(SHT_SYMTAB);
 		
-		ELF_CONTEXT.symbols = CELF_CALL(getSectionContent)(sym_header);
+		ELF_CONTEXT.symbols = ELF_CALL(getSectionContent)(sym_header);
 	}
 
 	return (ELF_SYM *) ELF_CONTEXT.symbols;
 }
 
-INLINE ELF_UINT	CELF_CALL(getSymbolCount)(void)
+INLINE ELF_UINT	ELF_CALL(getSymbolCount)(void)
 {
-	ELF_SHDR	*sym_header	= CELF_CALL(getSectionByType)(SHT_SYMTAB);
+	ELF_SHDR	*sym_header	= ELF_CALL(getSectionByType)(SHT_SYMTAB);
 
 	ELF_ULONG	size		= ELF_READ_FIELD(sym_header->sh_size);
 	ELF_ULONG	sym_size	= ELF_READ_FIELD(sym_header->sh_entsize);

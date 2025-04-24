@@ -1,0 +1,168 @@
+																				
+
+ELF_CALL_WRAPPER
+(																				
+	ELF_Hdr, getFileHeader,														
+	(void)																		
+	(),																			
+)
+
+ELF_CALL_WRAPPER
+(																				
+	uint16_t, getSectionCount,
+	(void),
+	(),
+)
+ELF_CALL_WRAPPER
+(																				
+	ELF_Shdr, getSections,
+	(void),
+	(),
+)
+
+ELF_CALL_WRAPPER
+(																				
+	ELF_Shdr, getSectionByIndex,
+	(const uint32_t index),
+	(index),
+)
+ELF_CALL_WRAPPER
+(																				
+	ELF_Shdr, getSectionByType,
+	(const uint32_t type),
+	(),
+)
+ELF_CALL_WRAPPER
+(																				
+	ELF_Shdr, getSectionByName,
+	(const char *name),
+	(),
+)
+
+ELF_CALL_WRAPPER
+(																				
+	uint8_t, getSectionContent,
+	(const ELF_Shdr section),
+	(section),
+)
+ELF_CALL_WRAPPER
+(																				
+	uint64_t, getSectionSize,
+	(const ELF_Shdr section),
+	(section),
+)
+ELF_CALL_WRAPPER
+(																				
+	char *, getSectionName,
+	(const ELF_Shdr section),
+	(section),
+)
+
+ELF_CALL_WRAPPER
+(																				
+	ELF_Phdr, getProgramHeaders,
+	(void),
+	(),
+)
+
+ELF_CALL_WRAPPER
+(																				
+	uint16_t, getSymbolCount,
+	(void),
+	(),
+)
+ELF_CALL_WRAPPER
+(																				
+	ELF_Sym, getSymbols,
+	(void),
+	(),
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

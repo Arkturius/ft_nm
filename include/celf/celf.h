@@ -405,7 +405,7 @@ typedef struct
  *		define CELF_IMPLEMENTATION to use them
  *		Functions for parsing, verifying and creating ELF structures.
  */
-
+// #define _CELF_IMPLEMENTATION
 # if defined(_CELF_IMPLEMENTATION)
 
 #  define _CELF_ENUMS_TO_STRING
@@ -421,24 +421,110 @@ typedef struct
 
 // TODO:	Write this !!!
 
-typedef	void	*ELF_Hdr
-typedef void	*ELF_Shdr
-typedef void	*ELF_Phdr
-typedef void	*ELF_Sym
-typedef void	*ELF_Rel
-typedef void	*ELF_Rela
-typedef void	*ELF_Dyn
+typedef	void		*ELF_Hdr;
+typedef void		*ELF_Shdr;
+typedef void		*ELF_Phdr;
+typedef void		*ELF_Sym;
+typedef void		*ELF_Rel;
+typedef void		*ELF_Rela;
+typedef void		*ELF_Dyn;
 
-#  define	ELF_IS_64	(ELF_RAW[EI_CLASS] == ELF_64BIT)
-#  define	ELF_IS_32	(ELF_RAW[EI_CLASS] == ELF_32BIT)
+#  define	ELF_IS_64	ELF_RAW[EI_CLASS] == ELF_64BIT
+#  define	ELF_IS_32	ELF_RAW[EI_CLASS] == ELF_32BIT
 
-ELF_Hdr	_getFileHeader(void)
-{
-	if (ELF_IS_64)	return (ELF_Hdr) celf_x64_getFileHeader();
-	if (ELF_IS_32)	return (ELF_Hdr) celf_x32_getFileHeader();
+#  define	ELF_CALL_WRAPPER(type, func, params, args)							\
+																				\
+type	func params																\
+{																				\
+	if (ELF_IS_64)	{ return (type) ELF_64_CALL(func) args ; }					\
+	if (ELF_IS_32)	{ return (type) ELF_32_CALL(func) args ; }					\
+																				\
+	return (0);																	\
+}																				\
 
-	return (NULL);
-}
+ELF_CALL_WRAPPER
+(
+	ELF_Hdr, getFileHeader,
+	(void),
+	()
+)
+
+ELF_CALL_WRAPPER
+(
+	uint16_t, getSectionCount,
+	(void),
+	()
+)
+ELF_CALL_WRAPPER
+(
+	ELF_Shdr, getSections,
+	(void),
+	()
+)
+ELF_CALL_WRAPPER
+(
+	char *, getSectionNames,
+	(void),
+	()
+)
+
+ELF_CALL_WRAPPER
+(
+	ELF_Shdr, getSectionByIndex,
+	(const uint32_t index),
+	(index)
+)
+ELF_CALL_WRAPPER
+(
+	ELF_Shdr, getSectionByType,
+	(const uint32_t type),
+	(type)
+)
+ELF_CALL_WRAPPER
+(
+	ELF_Shdr, getSectionByName,
+	(const char *name),
+	(name)
+)
+
+ELF_CALL_WRAPPER
+(
+	uint8_t *, getSectionContent,
+	(const ELF_Shdr section),
+	(section)
+)
+ELF_CALL_WRAPPER
+(
+	uint64_t, getSectionSize,
+	(const ELF_Shdr section),
+	(section)
+)
+ELF_CALL_WRAPPER
+(
+	char *, getSectionName,
+	(const ELF_Shdr section),
+	(section)
+)
+
+ELF_CALL_WRAPPER
+(
+	ELF_Phdr, getProgramHeaders,
+	(void),
+	()
+)
+
+ELF_CALL_WRAPPER
+(
+	uint16_t, getSymbolCount,
+	(void),
+	()
+)
+ELF_CALL_WRAPPER
+(
+	ELF_Sym, getSymbols,
+	(void),
+	()
+)
 
 # endif	//	CELF_IMPLEMENTATION
 

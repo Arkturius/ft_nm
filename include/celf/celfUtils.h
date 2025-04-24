@@ -80,6 +80,7 @@ typedef struct
 	uint8_t	*reloca;		// not used now
 	uint8_t	*dynamic;		// not used now
 	uint8_t	*section_names;
+	uint8_t	*shstrtab;
 	uint8_t	*asst;
 	void	*temp;
 }	CELF_ctx;
@@ -89,6 +90,7 @@ typedef struct
 # define	ELF_SIZE	ELF_CONTEXT.file.size
 
 static CELF_ctx	ELF_CONTEXT = {0};
+
 # if defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 #  define HOST_IS_LE 1
 # else
@@ -151,11 +153,11 @@ INLINE int	strtab_cmp(const char *s1, const char *s2)
 	return (*s1 - *s2);
 }
 
-INLINE const char	*strtab_find(const char *strtab, char *needle)
+INLINE const char	*strtab_find(const char *strtab, const char *needle, uint32_t size)
 {
 	const char	*tmp;
 
-	for (tmp = strtab; *tmp; ++tmp)
+	for (tmp = strtab; size; size--, ++tmp)
 	{
 		if (*tmp != *needle )
 			continue;
@@ -177,7 +179,8 @@ INLINE const char	*strtab_find(const char *strtab, char *needle)
 #  define	ELF_ASSERT_PTR(ptr)		if (!ELF_IN_FILE(ptr)) { exit(1); }
 # endif
 
-# define	ELF_CALL_PREFIX(c)	CONCAT3(celf_x, c, _)
+# define	ELF_CALL_PREFIX(c)	CONCAT3(celf, c, _)
+# define	ELF_CALL(name)		CONCAT(ELF_CALL_PREFIX(ELF_CLASS), name)
 # define	ELF_64_CALL(name)	CONCAT(ELF_CALL_PREFIX(64), name)
 # define	ELF_32_CALL(name)	CONCAT(ELF_CALL_PREFIX(32), name)
 

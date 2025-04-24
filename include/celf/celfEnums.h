@@ -274,7 +274,7 @@ enum	ELF_DynamicTag
 
 #  define	ENUM_TYPE	ELF_IdentIndices
 #  define	ENUM_LIST	ELF_IdentIndicesList
-#  include	"enumToString.h"
+#  include	<enumToString.h>
 
 /**
  * @enum	ELF_Class
@@ -285,7 +285,7 @@ enum	ELF_DynamicTag
 
 #  define	ENUM_TYPE	ELF_Class
 #  define	ENUM_LIST	ELF_ClassList
-#  include	"enumToString.h"
+#  include	<enumToString.h>
 
 /**
  * @enum	ELF_Endianness
@@ -297,7 +297,7 @@ enum	ELF_DynamicTag
 
 #  define	ENUM_TYPE	ELF_Endianness
 #  define	ENUM_LIST	ELF_EndiannessList
-#  include	"enumToString.h"
+#  include	<enumToString.h>
 
 /**
  * @enum	ELF_OsAbi
@@ -324,7 +324,7 @@ enum	ELF_DynamicTag
 
 #  define	ENUM_TYPE	ELF_OsAbi
 #  define	ENUM_LIST	ELF_OsAbiList
-#  include	"enumToString.h"
+#  include	<enumToString.h>
 
 /**
  * @enum	ELF_ExType
@@ -347,7 +347,7 @@ enum	ELF_DynamicTag
 #  define	ENUM_TYPE	ELF_ExType
 #  define	ENUM_LIST	ELF_ExTypeList
 #  define	ENUM_SPEC	ELF_ExTypeSpec
-#  include	"enumToString.h"
+#  include	<enumToString.h>
 
 /**
  * @enum	ELF_Machine
@@ -369,7 +369,7 @@ enum	ELF_DynamicTag
 
 #  define	ENUM_TYPE	ELF_Machine
 #  define	ENUM_LIST	ELF_MachineList
-#  include	"enumToString.h"
+#  include	<enumToString.h>
 
 /**
  * @enum	ELF_Version
@@ -381,7 +381,7 @@ enum	ELF_DynamicTag
 
 #  define	ENUM_TYPE	ELF_Version
 #  define	ENUM_LIST	ELF_VersionList
-#  include	"enumToString.h"
+#  include	<enumToString.h>
 
 /**
  * @enum	ELF_ProgType
@@ -414,7 +414,7 @@ enum	ELF_DynamicTag
 #  define	ENUM_TYPE	ELF_ProgType
 #  define	ENUM_LIST	ELF_ProgTypeList
 #  define	ENUM_SPEC	ELF_ProgTypeSpec
-#  include	"enumToString.h"
+#  include	<enumToString.h>
 
 /**
  * @enum	ELF_ProgFlags
@@ -428,7 +428,7 @@ enum	ELF_DynamicTag
 
 #  define	ENUM_TYPE	ELF_ProgFlags
 #  define	ENUM_LIST	ELF_ProgFlagsList
-#  include	"enumToString.h"
+#  include	<enumToString.h>
 
 /**
  * @enum	ELF_SectionType
@@ -468,7 +468,7 @@ enum	ELF_DynamicTag
 #  define	ENUM_TYPE	ELF_SectionType
 #  define	ENUM_LIST	ELF_SectionTypeList
 #  define	ENUM_SPEC	ELF_SectionTypeSpec
-#  include	"enumToString.h"
+#  include	<enumToString.h>
 
 /**
  * @enum	ELF_SectionFlags
@@ -491,7 +491,7 @@ enum	ELF_DynamicTag
 
 #  define	ENUM_TYPE	ELF_SectionFlags
 #  define	ENUM_LIST	ELF_SectionFlagsList
-#  include	"enumToString.h"
+#  include	<enumToString.h>
 
 /**
  * @enum	ELF_SymbolVisibility
@@ -504,7 +504,7 @@ enum	ELF_DynamicTag
 
 #  define	ENUM_TYPE	ELF_SymbolVisibility
 #  define	ENUM_LIST	ELF_SymbolVisibilityList
-#  include	"enumToString.h"
+#  include	<enumToString.h>
 
 /**
  * @enum	ELF_SymbolBind
@@ -522,7 +522,7 @@ enum	ELF_DynamicTag
 
 #  define	ENUM_TYPE	ELF_SymbolBind
 #  define	ENUM_LIST	ELF_SymbolBindList
-#  include	"enumToString.h"
+#  include	<enumToString.h>
 
 /**
  * @enum	ELF_SymbolType
@@ -544,7 +544,7 @@ enum	ELF_DynamicTag
 
 #  define	ENUM_TYPE	ELF_SymbolType
 #  define	ENUM_LIST	ELF_SymbolTypeList
-#  include	"enumToString.h"
+#  include	<enumToString.h>
 
 /**
  * @enum	ELF_SectionIndices
@@ -562,7 +562,7 @@ enum	ELF_DynamicTag
 
 #  define	ENUM_TYPE	ELF_SectionIndices
 #  define	ENUM_LIST	ELF_SectionIndicesList
-#  include	"enumToString.h"
+#  include	<enumToString.h>
 
 /**
  * @enum	ELF_DynamicTag
@@ -617,7 +617,7 @@ enum	ELF_DynamicTag
 #  define ENUM_TYPE		ELF_DynamicTag
 #  define ENUM_LIST		ELF_DynamicTagList
 #  define ENUM_SPEC		ELF_DynamicTagSpec
-#  include	"enumToString.h"
+#  include	<enumToString.h>
 
 # endif	// _CELF_ENUMS_TO_STRINGS
 
