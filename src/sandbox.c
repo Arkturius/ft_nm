@@ -15,7 +15,8 @@ int main(UNUSED int argc, char **argv)
 	ELF64_Shdr	*symtab = getSectionByName(".symtab");
 	uint32_t	link = READ_FIELD(symtab->sh_link);
 
-	char		*names = getSectionNames();
+//	char		*names = getSectionNames();
+	char		*names = (char *) getSectionContent(getSectionByIndex(link));
 
 	ELF64_Sym	*symbols = getSymbols();
 	uint32_t	scount = getSymbolCount();

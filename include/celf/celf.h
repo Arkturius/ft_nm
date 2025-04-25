@@ -419,8 +419,6 @@ typedef struct
 #   include "celfFuncs.h"
 #  endif
 
-// TODO:	Write this !!!
-
 typedef	void		*ELF_Hdr;
 typedef void		*ELF_Shdr;
 typedef void		*ELF_Phdr;
@@ -432,99 +430,96 @@ typedef void		*ELF_Dyn;
 #  define	ELF_IS_64	ELF_RAW[EI_CLASS] == ELF_64BIT
 #  define	ELF_IS_32	ELF_RAW[EI_CLASS] == ELF_32BIT
 
-#  define	ELF_CALL_WRAPPER(type, func, params, args)							\
-																				\
-type	func params																\
-{																				\
-	if (ELF_IS_64)	{ return (type) ELF_64_CALL(func) args ; }					\
-	if (ELF_IS_32)	{ return (type) ELF_32_CALL(func) args ; }					\
-																				\
-	return (0);																	\
-}																				\
+INLINE ELF_Hdr getFileHeader(void)
+{
+	if (ELF_IS_64)	{ return (ELF_Hdr) ELF_64_CALL(getFileHeader)(); }
+	if (ELF_IS_32)	{ return (ELF_Hdr) ELF_32_CALL(getFileHeader)(); }
+	return (0);
+}
 
-ELF_CALL_WRAPPER
-(
-	ELF_Hdr, getFileHeader,
-	(void),
-	()
-)
+INLINE uint16_t getSectionCount(void)
+{
+	if (ELF_IS_64)	{ return (uint16_t) ELF_64_CALL(getSectionCount)(); }
+	if (ELF_IS_32)	{ return (uint16_t) ELF_32_CALL(getSectionCount)(); }
+	return (0);
+}
 
-ELF_CALL_WRAPPER
-(
-	uint16_t, getSectionCount,
-	(void),
-	()
-)
-ELF_CALL_WRAPPER
-(
-	ELF_Shdr, getSections,
-	(void),
-	()
-)
-ELF_CALL_WRAPPER
-(
-	char *, getSectionNames,
-	(void),
-	()
-)
+INLINE ELF_Shdr getSections(void)
+{
+	if (ELF_IS_64)	{ return (ELF_Shdr) ELF_64_CALL(getSections)(); }
+	if (ELF_IS_32)	{ return (ELF_Shdr) ELF_32_CALL(getSections)(); }
+	return (0);
+}
 
-ELF_CALL_WRAPPER
-(
-	ELF_Shdr, getSectionByIndex,
-	(const uint32_t index),
-	(index)
-)
-ELF_CALL_WRAPPER
-(
-	ELF_Shdr, getSectionByType,
-	(const uint32_t type),
-	(type)
-)
-ELF_CALL_WRAPPER
-(
-	ELF_Shdr, getSectionByName,
-	(const char *name),
-	(name)
-)
+INLINE char * getSectionNames(void)
+{
+	if (ELF_IS_64)	{ return (char *) ELF_64_CALL(getSectionNames)(); }
+	if (ELF_IS_32)	{ return (char *) ELF_32_CALL(getSectionNames)(); }
+	return (0);
+}
 
-ELF_CALL_WRAPPER
-(
-	uint8_t *, getSectionContent,
-	(const ELF_Shdr section),
-	(section)
-)
-ELF_CALL_WRAPPER
-(
-	uint64_t, getSectionSize,
-	(const ELF_Shdr section),
-	(section)
-)
-ELF_CALL_WRAPPER
-(
-	char *, getSectionName,
-	(const ELF_Shdr section),
-	(section)
-)
+INLINE ELF_Shdr getSectionByIndex(const uint32_t index)
+{
+	if (ELF_IS_64)	{ return (ELF_Shdr) ELF_64_CALL(getSectionByIndex)(index); }
+	if (ELF_IS_32)	{ return (ELF_Shdr) ELF_32_CALL(getSectionByIndex)(index); }
+	return (0);
+}
 
-ELF_CALL_WRAPPER
-(
-	ELF_Phdr, getProgramHeaders,
-	(void),
-	()
-)
+INLINE ELF_Shdr getSectionByType(const uint32_t type)
+{
+	if (ELF_IS_64)	{ return (ELF_Shdr) ELF_64_CALL(getSectionByType)(type); }
+	if (ELF_IS_32)	{ return (ELF_Shdr) ELF_32_CALL(getSectionByType)(type); }
+	return (0);
+}
 
-ELF_CALL_WRAPPER
-(
-	uint16_t, getSymbolCount,
-	(void),
-	()
-)
-ELF_CALL_WRAPPER
-(
-	ELF_Sym, getSymbols,
-	(void),
-	()
-)
+INLINE ELF_Shdr getSectionByName(const char *name)
+{
+	if (ELF_IS_64)	{ return (ELF_Shdr) ELF_64_CALL(getSectionByName)(name); }
+	if (ELF_IS_32)	{ return (ELF_Shdr) ELF_32_CALL(getSectionByName)(name); }
+	return (0);
+}
+
+INLINE uint8_t * getSectionContent(const ELF_Shdr section)
+{
+	if (ELF_IS_64)	{ return (uint8_t *) ELF_64_CALL(getSectionContent)(section); }
+	if (ELF_IS_32)	{ return (uint8_t *) ELF_32_CALL(getSectionContent)(section); }
+	return (0);
+}
+
+INLINE uint64_t getSectionSize(const ELF_Shdr section)
+{
+	if (ELF_IS_64)	{ return (uint64_t) ELF_64_CALL(getSectionSize)(section); }
+	if (ELF_IS_32)	{ return (uint64_t) ELF_32_CALL(getSectionSize)(section); }
+	return (0);
+}
+
+INLINE char * getSectionName(const ELF_Shdr section)
+{
+	if (ELF_IS_64)	{ return (char *) ELF_64_CALL(getSectionName)(section); }
+	if (ELF_IS_32)	{ return (char *) ELF_32_CALL(getSectionName)(section); }
+	return (0);
+}
+
+INLINE ELF_Phdr getProgramHeaders(void)
+{
+	if (ELF_IS_64)	{ return (ELF_Phdr) ELF_64_CALL(getProgramHeaders)(); }
+	if (ELF_IS_32)	{ return (ELF_Phdr) ELF_32_CALL(getProgramHeaders)(); }
+	return (0);
+}
+
+INLINE uint16_t getSymbolCount(void)
+{
+	if (ELF_IS_64)	{ return (uint16_t) ELF_64_CALL(getSymbolCount)(); }
+	if (ELF_IS_32)	{ return (uint16_t) ELF_32_CALL(getSymbolCount)(); }
+	return (0);
+}
+
+INLINE ELF_Sym getSymbols(void)
+{
+	if (ELF_IS_64)	{ return (ELF_Sym) ELF_64_CALL(getSymbols)(); }
+	if (ELF_IS_32)	{ return (ELF_Sym) ELF_32_CALL(getSymbols)(); }
+	return (0);
+}
 
 # endif	//	CELF_IMPLEMENTATION
 
