@@ -12,6 +12,7 @@
    "build/src/main.o",
    "-c",
    "-Iinclude",
+   "-Icelf/include",
    "src/main.c"
   ],
   "file": "src/main.c"

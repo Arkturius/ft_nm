@@ -1,5 +1,8 @@
+celf
+build/
 .cache/
-nm_tester/
-*.o
-*.d
-ft_nm
+*.bc
+*.i
+*.s
+a.out
+*test*

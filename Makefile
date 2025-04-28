@@ -1,28 +1,16 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/07/05 17:09:56 by rgramati          #+#    #+#              #
-#    Updated: 2025/04/19 18:18:57 by rgramati         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
-NAME		=	$(notdir $(shell pwd))
+NAME		:=	ft_nm
 
 SRC_DIR		:=	src
 INC_DIR		:=	include
-LIB_DIR		:=	lib
 OBJ_DIR		:=	build
 
 include			sources.mk
 SRCS		:=	$(addprefix $(SRC_DIR)/, $(SRCS))
 
-LIB_DIRS	:=	$(addprefix $(LIB_DIR)/,$(LIBS))
+CELF		:=	celf
+CELF_LIB	:=	$(CELF)/lib$(CELF).so
 
-COPTS_DIRS	:=	$(INC_DIR)
+COPTS_DIRS	:=	$(INC_DIR) $(CELF)/$(INC_DIR)
 COPTS		+=	$(foreach dir, $(COPTS_DIRS),-I$(dir))
 
 OBJS 		:=	$(addprefix $(OBJ_DIR)/, $(SRCS:%.c=%.o))
@@ -51,9 +39,12 @@ MAKE		+=	--no-print-directory
 
 all:					$(NAME)
 
-$(NAME):				$(OBJS)
+$(NAME):				$(CELF_LIB) $(OBJS)	
 	@echo " $(GREEN)$(BOLD)$(ITALIC)■$(RESET)  linking	$(GREEN)$(BOLD)$(ITALIC)$(NAME)$(RESET)"
-	@$(CC) $(CFLAGS) $(COPTS) -o $@ $^ $(LDFLAGS)
+	@$(CC) $(CFLAGS) $(COPTS) -o $@ $^ 
+
+$(CELF_LIB):
+	@$(MAKE) -C $(CELF)
 
 $(OBJ_DIR)/src/%.o: 	src/%.c
 	@$(MKDIR) $(@D)
@@ -71,9 +62,7 @@ fclean:					clean
 		echo " $(RED)$(BOLD)$(ITALIC)■$(RESET)  deleted	$(RED)$(BOLD)$(ITALIC)$(NAME)$(RESET)"; \
 		$(RM) $(NAME); \
 	fi;
-	@for DIR in $(LIB_DIRS); \
-	do $(MAKE) -C $$DIR fclean; \
-	done;
+	@$(MAKE) -C $(CELF) fclean
 
 re:					fclean all
 

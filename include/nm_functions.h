@@ -6,7 +6,7 @@
 /*   By: rgramati <rgramati@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:59:46 by rgramati          #+#    #+#             */
-/*   Updated: 2025/04/21 16:18:12 by rgramati         ###   ########.fr       */
+/*   Updated: 2025/04/28 19:56:20 by rgramati         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -224,7 +224,7 @@ static char	*NM_ELF_FUNC(fetchSymbolLetter)(NM_ELF_SYMBOL *sym)
 	else
 	{
 		if (symbol_type == STT_GNU_IFUNC)
-			return (letter = 'I', &letter);
+			letter = 'I';
 		else
 		{
 			NM_ELF_SHEADER	*section = ((NM_ELF_SHEADER *)NM_CONTEXT.sections_hdr) + section_index;
