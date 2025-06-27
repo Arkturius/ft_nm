@@ -40,8 +40,7 @@ inline int	nm_file_error
 		"Display only undefined symbols"									\
 	)
 
-U_FLAGS_GEN_ENUM(nm, NM_FLAGS, NM_FILENAME_PER_FILE, NM_FILENAME_PER_SYM);
-
+U_FLAGS_GEN_ENUM(nm, NM_FLAGS, NM_FILENAME_PER_FILE);
 U_FLAGS_GEN_VARS_DECLS(nm);
 U_FLAGS_GEN_FUNCS_DECLS(nm);
 

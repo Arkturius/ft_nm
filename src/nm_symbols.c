@@ -4,19 +4,22 @@
 
 #include <nm.h>
 
-static inline int	nm_symbol_is_undef(nm_SYM *symbol)
+INLINE int	nm_symbol_is_undef
+(nm_SYM *symbol)
 {
 	return (SYM_SHIDX(symbol) == SHN_UNDEF);
 }
 
-static inline int	nm_symbol_is_extrn(nm_SYM *symbol)
+INLINE int	nm_symbol_is_extrn
+(nm_SYM *symbol)
 {
 	uint8_t	bind = SYM_BIND(symbol);
 
 	return ((bind == STB_GLOBAL) || (bind == STB_WEAK));
 }
 
-static inline int	nm_symbol_is_debug(nm_SYM *symbol)
+INLINE int	nm_symbol_is_debug
+(nm_SYM *symbol)
 {
 	uint8_t	type = SYM_TYPE(symbol);
 
@@ -26,6 +29,9 @@ static inline int	nm_symbol_is_debug(nm_SYM *symbol)
 static uint8_t	*nm_symbol_names
 (void *symtab_hdr)
 {
+	if (!symtab_hdr)
+		return (NULL);
+
 	uint32_t	symtab_link = -1u;
 	uint32_t	sheaders_size = ELF_sheaders_size();
 	void		*sheaders = NULL;
@@ -47,11 +53,15 @@ static uint8_t	*nm_symbol_names
 	return (ELF_section_content(symstrtab));
 }
 
-static void	nm_symbol_extract64
+static int	nm_symbol_extract64
 (ELF64_Sym *elf_sym, nm_SYM *sym)
 {
 	void		*symtab_hdr = ELF_sheader_get_by_name(".symtab");
 	uint8_t		*names = nm_symbol_names(symtab_hdr);
+	
+	if (!names)
+		return (1);
+
 	uint32_t	name_idx = READ_FIELD(elf_sym->st_name);
 	uint8_t		info = READ_FIELD(elf_sym->st_info);
 	uint16_t	shidx = READ_FIELD(elf_sym->st_shidx);
@@ -62,13 +72,19 @@ static void	nm_symbol_extract64
 	SYM_TYPE(sym) = ST_TYPE(info);
 	SYM_BIND(sym) = ST_BIND(info);
 	SYM_NAME(sym) = (const char *)names + name_idx;
+
+	return (0);
 }
 
-static void	nm_symbol_extract32
+static int	nm_symbol_extract32
 (ELF32_Sym *elf_sym, nm_SYM *sym)
 {
 	void		*symtab_hdr = ELF_sheader_get_by_name(".symtab");
 	uint8_t		*names = nm_symbol_names(symtab_hdr);
+	
+	if (!names)
+		return (1);
+
 	uint32_t	name_idx = READ_FIELD(elf_sym->st_name);
 	uint8_t		info = READ_FIELD(elf_sym->st_info);
 	uint16_t	shidx = READ_FIELD(elf_sym->st_shidx);
@@ -79,12 +95,18 @@ static void	nm_symbol_extract32
 	SYM_TYPE(sym) = ST_TYPE(info);
 	SYM_BIND(sym) = ST_BIND(info);
 	SYM_NAME(sym) = (const char *)names + name_idx;
+
+	return (0);
 }
 
 static char	*nm_section_name
 (const void *section)
 {
 	char		*section_names = ELF_shstrtab_get();
+
+	if (!section_names)
+		return (NULL);
+
 	uint32_t	name_idx;
 
 	if (ELF_is64bit())
