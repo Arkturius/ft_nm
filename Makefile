@@ -7,8 +7,8 @@ OBJ_DIR		:=	build
 include			sources.mk
 SRCS		:=	$(addprefix $(SRC_DIR)/, $(SRCS))
 
-CELF		:=	celf
-CELF_LIB	:=	$(CELF)/lib$(CELF).so
+CELF		:=	CELF
+CELF_LIB	:=	$(CELF)/libcelf.a
 
 COPTS_DIRS	:=	$(INC_DIR) $(CELF)/$(INC_DIR)
 COPTS		+=	$(foreach dir, $(COPTS_DIRS),-I$(dir))
@@ -39,9 +39,9 @@ MAKE		+=	--no-print-directory
 
 all:					$(NAME)
 
-$(NAME):				$(CELF_LIB) $(OBJS)	
+$(NAME):				$(OBJS)	$(CELF_LIB) 
 	@echo " $(GREEN)$(BOLD)$(ITALIC)■$(RESET)  linking	$(GREEN)$(BOLD)$(ITALIC)$(NAME)$(RESET)"
-	@$(CC) $(CFLAGS) $(COPTS) -o $@ $^ 
+	@$(CC) $(CFLAGS) $(COPTS) -o $@ $^
 
 $(CELF_LIB):
 	@$(MAKE) -C $(CELF)

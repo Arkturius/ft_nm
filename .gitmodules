@@ -1,3 +1,3 @@
-[submodule "celf"]
-	path = celf
-	url = git@github.com:Arkturius/celf.git
+[submodule "CELF"]
+	path = CELF
+	url = https://github.com/Arkturius/CELF
